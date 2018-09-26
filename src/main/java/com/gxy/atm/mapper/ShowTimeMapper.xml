@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxy.atm.mapper.ShowTimeMapper">
+  <resultMap id="BaseResultMap" type="com.gxy.atm.entity.ShowTime">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="show_time_col" jdbcType="VARCHAR" property="showTimeCol" />
+    <result column="show_day_id" jdbcType="INTEGER" property="showDayId" />
+    <result column="language" jdbcType="CHAR" property="language" />
+    <result column="show_place" jdbcType="CHAR" property="showPlace" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, show_time_col, show_day_id, language, show_place
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from show_time
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from show_time
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gxy.atm.entity.ShowTime">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into show_time (show_time_col, show_day_id, language, 
+      show_place)
+    values (#{showTimeCol,jdbcType=VARCHAR}, #{showDayId,jdbcType=INTEGER}, #{language,jdbcType=CHAR}, 
+      #{showPlace,jdbcType=CHAR})
+  </insert>
+
+
+  <select id="listShowTimeByDayId" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from show_time where show_day_id =#{showDayId}
+    order by show_time_col;
+  </select>
+  
+  <select id="getShowMsgById" resultType="hashmap">
+    SELECT show_time_col,show_day_col from show_time a ,show_day b WHERE a.id = #{id} AND a.show_day_id = b.id
+  </select>
+
+
+</mapper>

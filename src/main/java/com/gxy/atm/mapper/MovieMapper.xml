@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxy.atm.mapper.MovieMapper">
+  <resultMap id="BaseResultMap" type="com.gxy.atm.entity.Movie">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="movie_name" jdbcType="VARCHAR" property="movieName" />
+    <result column="director" jdbcType="VARCHAR" property="director" />
+    <result column="writers" jdbcType="VARCHAR" property="writers" />
+    <result column="starring" jdbcType="VARCHAR" property="starring" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="producer_countries" jdbcType="VARCHAR" property="producerCountries" />
+    <result column="language" jdbcType="VARCHAR" property="language" />
+    <result column="release_date" jdbcType="VARCHAR" property="releaseDate" />
+    <result column="film_length" jdbcType="VARCHAR" property="filmLength" />
+    <result column="pic_path" jdbcType="VARCHAR" property="picPath" />
+    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="price" jdbcType="VARCHAR" property="price" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, movie_name, director, writers, starring, `type`, producer_countries, `language`,
+   release_date, film_length, pic_path, `desc`, price
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from movie
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from movie
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insert" parameterType="com.gxy.atm.entity.Movie">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into movie (movie_name, director, writers,
+      starring, `type`, producer_countries,
+    `language`, release_date, film_length,
+    pic_path, `desc`, price
+      )
+    values (#{movieName,jdbcType=VARCHAR}, #{director,jdbcType=VARCHAR}, #{writers,jdbcType=VARCHAR}, 
+      #{starring,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{producerCountries,jdbcType=VARCHAR}, 
+      #{language,jdbcType=VARCHAR}, #{releaseDate,jdbcType=VARCHAR}, #{filmLength,jdbcType=VARCHAR}, 
+      #{picPath,jdbcType=VARCHAR}, #{desc,jdbcType=VARCHAR}, #{price,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <select id="listMovies" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from movie;
+  </select>
+
+  <select id="getMovieByShowTimeId" resultMap="BaseResultMap">
+    select c.* from show_time a,show_day b,movie c
+    where a.show_day_id=b.id and b.movie_id=c.id and a.id=#{showTimeId};
+  </select>
+
+
+</mapper>

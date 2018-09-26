@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <!--扫描注解，不配置，注解无效-->
+    <!--扫描注解，不配置，注解无效-->
+    <context:component-scan base-package="com.gxy.atm.controller"/>
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- @ResponseBody注解支持-开始 -->
+            <bean id="mappingJacksonHttpMessageConverter"
+                  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+            <!-- @ResponseBody注解支持-结束 -->
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/> <!--前缀路径-->
+        <property name="suffix" value=".jsp"/> <!--后缀-->
+    </bean>
+
+    <!-- 配置拦截器 -->
+    <mvc:interceptors>
+        <!-- 配置登陆拦截器 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/api/order/addOrder.do"/>
+            <!--<mvc:mapping path="/**"/>&lt;!&ndash;拦截url&ndash;&gt;-->
+            <!--<mvc:exclude-mapping path="/user/login.do"/>&lt;!&ndash;排除url&ndash;&gt;-->
+            <!--<mvc:exclude-mapping path="api/order/notifyUrl.do"/>&lt;!&ndash;排除alipay异步通知url&ndash;&gt;-->
+            <bean class="com.gxy.atm.interceptor.LoginHandlerIntercepter"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!--启用aop注解-->
+    <aop:aspectj-autoproxy/>
+
+
+</beans>

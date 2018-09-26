@@ -1,0 +1,200 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>查询流水</title>
+    <meta name="description" content="这是一个 index 页面">
+    <meta name="keywords" content="index">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="icon" type="image/png" href="/assets/i/favicon.png">
+    <link rel="apple-touch-icon-precomposed" href="/assets/i/app-icon72x72@2x.png">
+    <meta name="apple-mobile-web-app-title" content="Amaze UI" />
+    <link rel="stylesheet" href="/assets/css/amazeui.min.css" />
+    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <script src="/assets/js/echarts.min.js"></script>
+</head>
+
+<body data-type="index">
+
+
+<div class="tpl-page-container tpl-page-header-fixed">
+
+
+    <div id="app" class="tpl-content-wrapper">
+        <div class="tpl-content-page-title">
+            xxx电影列表
+        </div>
+        <ol class="am-breadcrumb">
+            <li><a href="/user/home.do" class="am-icon-home">首页</a></li>
+            <li><a href="#">资金管理</a></li>
+            <li class="am-active">流水表</li>
+        </ol>
+
+
+        <!--列表开始-->
+        <div class="tpl-portlet-components">
+            <div class="portlet-title">
+                <div class="caption font-green bold">
+                    <span class="am-icon-code"></span> 列表
+                </div>
+
+            </div>
+            <div class="tpl-block">
+                <div class="am-g">
+                    <div class="am-u-sm-12 am-u-md-6">
+                        <div class="am-btn-toolbar">
+                            <div class="am-btn-group am-btn-group-xs">
+                                <button type="button" class="am-btn am-btn-default am-btn-success"><span class="am-icon-plus"></span> 新增</button>
+                                <button type="button" class="am-btn am-btn-default am-btn-secondary"><span class="am-icon-save"></span> 保存</button>
+                                <button type="button" class="am-btn am-btn-default am-btn-warning"><span class="am-icon-archive"></span> 审核</button>
+                                <button type="button" class="am-btn am-btn-default am-btn-danger"><span class="am-icon-trash-o"></span> 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--用来选择日期来搜索数据-->
+                    <form id="form1" method="post">
+                        <input id="pageIndex" name="pageIndex" type="hidden">
+                        日期
+                        <input id="sTime" name="sTime" type="text" autocomplete="off" placeholder="请选择日期" value="">
+                        至
+                        <input id="eTime" name="eTime" type="text"  autocomplete="off" placeholder="请选择日期" value="">
+                        <input type="button" value="搜索" @click="listOrders()">
+                    </form>
+
+
+                </div>
+                <div class="am-g">
+                    <div class="am-u-sm-12">
+                        <form class="am-form">
+                            <table  class="am-table am-table-striped am-table-hover table-main">
+                                <thead>
+                                <tr>
+                                    <th class="table-check"><input type="checkbox" class="tpl-table-fz-check"></th>
+                                    <th class="table-id">ID</th>
+                                    <th class="table-title">user_id</th>
+                                    <th class="table-type">show_time_id</th>
+                                    <th class="table-author am-hide-sm-only">total_price</th>
+                                    <th class="table-date am-hide-sm-only">order_no</th>
+                                    <th class="table-set">seat_code</th>
+                                    <th class="table-set">status</th>
+                                    <th class="table-set">trade_no</th>
+                                    <th class="table-set">create_time</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <span id="loading" style="display: none">加载中。。。。</span>
+                                    <tr v-for="(order,index) in orderList">
+                                        <td><input type="checkbox"></td>
+                                        <td v-text="index+1"></td>
+                                        <td v-text="order.userId"></td>
+                                        <td v-text="order.showTimeId"></td>
+                                        <td v-text="order.totalPrice"></td>
+                                        <td v-text="order.orderNo"></td>
+                                        <td v-text="order.seatCode"></td>
+
+                                        <td v-if="order.status==1">待支付</td>
+                                        <td v-else-if="order.status==2">已支付</td>
+                                        <td v-else-if="order.status==3">已取消</td>
+                                        <td v-else>已完成</td>
+                                        <td v-text="order.tradeNo"></td>
+
+                                        <td >{{order.createTime | dataFormatFilter('yyyy-MM-dd hh:mm:ss')}}</td>
+                                        <td>
+                                            <div class="am-btn-toolbar">
+                                                <div class="am-btn-group am-btn-group-xs">
+                                                    <button class="am-btn am-btn-default am-btn-xs am-text-secondary"><span class="am-icon-pencil-square-o"></span> 编辑</button>
+                                                    <button class="am-btn am-btn-default am-btn-xs am-hide-sm-only"><span class="am-icon-copy"></span> 复制</button>
+                                                    <button class="am-btn am-btn-default am-btn-xs am-text-danger am-hide-sm-only"><span class="am-icon-trash-o"></span> 删除</button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="am-cf">
+
+                                <div class="am-fr">
+                                    <ul class="am-pagination tpl-pagination">
+
+
+
+                                        <!--页码导航 start-->
+
+
+                                            <li v-if="pageInfo.pageNum <= 1" class="am-disabled"><a href="javascript:void(0)">«</a></li>
+
+                                            <li v-else><a href="javascript:void(0)" @click="listOrders(pageInfo.pageNum-1)">«</a></li>
+
+
+
+                                        <li :class="{'am-active': pageInfo.pageNum==item}" v-for="item in pageInfo.navigatepageNums">
+                                            <a v-if="pageInfo.pageNum!=item" href="javascript:void(0)" @click="listOrders(item)" v-text="item"></a>
+                                            <a v-else href="javascript:void(0)" v-text="item"></a>
+                                        </li>
+
+
+                                        <li v-if="pageInfo.pageNum >= pageInfo.pages" class="am-disabled"><a href="#">»</a></li>
+                                        <li v-else><a href="javascript:void(0)" @click="listOrders(pageInfo.pageNum+1)">»</a></li>
+
+                                        共<span v-text="pageInfo.pages"></span>页
+                                        <!--页码导航 end-->
+
+
+
+                                    </ul>
+                                </div>
+                            </div>
+                            <hr>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <div class="tpl-alert"></div>
+        </div>
+
+        <!--列表结束-->
+
+
+
+    </div>
+
+</div>
+
+
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/amazeui.min.js"></script>
+<script src="/assets/js/iscroll.js"></script>
+<script src="/assets/js/app.js"></script>
+
+
+
+<!--日期控件-->
+<script type="text/javascript" src="/js/laydate/laydate.js"></script>
+<script type="text/javascript" src="/js/vue.js"></script>
+<script src="js/app/order.js"></script>
+<script type="text/javascript">
+
+    //执行一个laydate实例
+    laydate.render({
+        elem: '#eTime' //指定元素
+    });
+    laydate.render({
+        elem: '#sTime' //指定元素
+    });
+
+
+
+
+</script>
+</body>
+
+</html>

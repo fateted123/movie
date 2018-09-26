@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxy.atm.mapper.OrderInfoMapper">
+  <resultMap id="BaseResultMap" type="com.gxy.atm.entity.OrderInfo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="seat" jdbcType="VARCHAR" property="seat" />
+    <result column="price" jdbcType="VARCHAR" property="price" />
+    <result column="order_id" jdbcType="INTEGER" property="orderId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, seat, price, order_id, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from order_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from order_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gxy.atm.entity.OrderInfo">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into order_info (seat, price, order_id, 
+      create_time)
+    values (#{seat,jdbcType=VARCHAR}, #{price,jdbcType=VARCHAR}, #{orderId,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+
+    <insert id="insertOderInfo">
+      <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+        SELECT LAST_INSERT_ID()
+      </selectKey>
+      insert into order_info (seat, price, order_id) values (#{seat},#{price},#{orderId});
+    </insert>
+
+</mapper>

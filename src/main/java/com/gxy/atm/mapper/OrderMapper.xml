@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxy.atm.mapper.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.gxy.atm.entity.Order">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="show_time_id" jdbcType="INTEGER" property="showTimeId"/>
+        <result column="total_price" jdbcType="VARCHAR" property="totalPrice"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="seat_code" jdbcType="VARCHAR" property="seatCode"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="trade_no" jdbcType="VARCHAR" property="tradeNo"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, show_time_id, total_price, order_no, seat_code, status, trade_no, create_time
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.gxy.atm.entity.Order">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into order (user_id, show_time_id, total_price,
+        order_no, seat_code, status,
+        trade_no, create_time)
+        values (#{userId,jdbcType=INTEGER}, #{showTimeId,jdbcType=INTEGER}, #{totalPrice,jdbcType=VARCHAR},
+        #{orderNo,jdbcType=VARCHAR}, #{seatCode,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT},
+        #{tradeNo,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    </insert>
+
+    <insert id="insertOrder">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into `order` (user_id, show_time_id,total_price, order_no, seat_code)
+        values (#{userId}, #{showTimeId},
+        #{totalPrice}, #{orderNo}, #{seatCode}
+        )
+    </insert>
+
+
+    <select id="listSaledSeats" resultType="string">
+    SELECT b.seat FROM `order` a, order_info b
+    WHERE a.id = b.order_id
+    AND a.`status` in(1,2,4)
+    and a.show_time_id = #{showTimeId};
+
+  </select>
+    <select id="selectOrderForLock" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> 
+        from `order` where
+        order_no = #{orderNo} for update;
+    </select>
+
+
+    <update id="updateOrderStatus">
+        update `order` set status = 2,trade_no = #{tradeNo} where order_no = #{orderNo};
+    </update>
+
+
+    <select id="listCancelOrders" resultType="int">
+        SELECT *FROM `order` WHERE `status` = 1 AND timestampdiff(MINUTE,create_time,NOW()) >=10;
+    </select>
+
+    <select id="selectByPrimaryKeyForLock" resultMap="BaseResultMap" >
+        select <include refid="Base_Column_List"/>
+        from `order` where
+        id = #{id} for update;
+
+    </select>
+
+    <update id="updateStatusById">
+        update `order` set status = 3 where id = #{id};
+    </update>
+
+    <!--查询座位是否已经被卖出-->
+    <select id="countBySeat" resultType="int">
+        select count(*) from order_info a,`order` b
+          where a.order_id=b.id and seat = #{seat}
+          and b.show_time_id=#{showTimeId} and b.`status` in (1,2,4)
+    </select>
+
+    <select id="listOrders" resultMap="BaseResultMap">
+      select <include refid="Base_Column_List"/>
+      from `order`;
+    </select>
+
+    <select id="listTimeByUserId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from `order`
+        where user_id = #{userId}
+        <if test="sTime != null and sTime!=''">
+            and create_time >= #{sTime}
+        </if>
+        <if test="eTime != null and eTime!=''">
+            <![CDATA[and create_time <= #{eTime}]]>
+        </if>
+    </select>
+</mapper>
